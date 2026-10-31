@@ -3,6 +3,7 @@ title: "Human"
 date: "01/05/2020"
 tags: ["night", "wonder"]
 excerpt: "With deep shifts in perspective, we impart wisdom as art"
+featured: true
 ---
 
 Cascades of photons illuminate the gateways to our brain
