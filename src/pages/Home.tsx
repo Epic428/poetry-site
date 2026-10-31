@@ -1,2 +1,40 @@
-import { useState } from "react";
-import{Link}from"react-router-dom";import{ArrowRight}from"lucide-react";import{poems}from"../lib/poems";import PoemCard from"../components/PoemCard";export default function Home(){const [featured] = useState(() => { const eligible = poems.filter(p => p.featured); return eligible.length ? eligible[Math.floor(Math.random() * eligible.length)] : undefined; });return <main><section className="hero"><div className="hero-orbit"/><div className="hero-glow"/><div className="container hero-content"><div className="eyebrow">✦ A COLLECTION OF WORDS</div><h1>Words for<br/><em>quieter moments.</em></h1><p className="hero-description">Poetry for the spaces between things. For midnight thoughts, soft beginnings, and all that remains unsaid.</p><Link className="btn btn-primary" to="/poems">Explore poems <ArrowRight size={16}/></Link></div></section>{featured&&<section className="section featured-section"><div className="container"><div className="kicker">✦ FEATURED POEM</div><Link to={`/poems/${featured.slug}`} className="featured-card"><div><h2>{featured.title}</h2><p>{featured.excerpt}</p></div><blockquote>{featured.body.split("\n").filter(Boolean).slice(0,4).join("\n")}</blockquote></Link></div></section>}<section className="section"><div className="container"><div className="kicker">✦ THE ARCHIVE</div><h2>Recent poems</h2><div className="poem-grid">{poems.slice(0,3).map(p=><PoemCard key={p.slug} poem={p}/>)}</div></div></section><section className="closing"><h2>Some things are better<br/><em>said in a poem.</em></h2><Link className="btn btn-outline" to="/poems">Read more poems <ArrowRight size={16}/></Link></section></main>}
+import {useState} from "react";
+import {Link} from "react-router-dom";
+import {ArrowRight} from "lucide-react";
+import {poems} from "../lib/poems";
+import PoemCard from "../components/PoemCard";
+
+export default function Home() {
+    const [featured] = useState(() => {
+        const eligible = poems.filter(p => p.featured);
+        return eligible.length ? eligible[Math.floor(Math.random() * eligible.length)] : undefined;
+    });
+    return <main>
+        <section className="hero">
+            <div className="hero-orbit"/>
+            <div className="hero-glow"/>
+            <div className="container hero-content">
+                <div className="eyebrow">✦ A COLLECTION OF WORDS</div>
+                <h1>Words for<br/><em>quieter moments.</em></h1><p className="hero-description">Poetry for the spaces
+                between things. For midnight thoughts, soft beginnings, and all that remains unsaid.</p><Link
+                className="btn btn-primary" to="/poems">Explore poems <ArrowRight size={16}/></Link></div>
+        </section>
+        {featured && <section className="section featured-section">
+            <div className="container">
+                <div className="kicker">✦ FEATURED POEM</div>
+                <Link to={`/poems/${featured.slug}`} className="featured-card">
+                    <div><h2>{featured.title}</h2><p>{featured.excerpt}</p></div>
+                    <blockquote>{featured.body.split("\n").filter(Boolean).slice(0, 4).join("\n")}</blockquote>
+                </Link></div>
+        </section>}
+        <section className="section">
+            <div className="container">
+                <div className="kicker">✦ THE ARCHIVE</div>
+                <h2>Recent poems</h2>
+                <div className="poem-grid">{poems.slice(0, 3).map(p => <PoemCard key={p.slug} poem={p}/>)}</div>
+            </div>
+        </section>
+        <section className="closing"><h2>Some things are better<br/><em>said in a poem.</em></h2><Link
+            className="btn btn-outline" to="/poems">Read more poems <ArrowRight size={16}/></Link></section>
+    </main>
+}

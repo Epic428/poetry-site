@@ -19,7 +19,7 @@ type Frontmatter = {
 };
 
 function readMarkdown(raw: string): { data: Frontmatter; content: string } {
-  const match = raw.match(/^\uFEFF?---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)/);
+  const match = new RegExp(/^\uFEFF?---\s*\r?\n([\s\S]*?)\r?\n---\s*(?:\r?\n|$)/).exec(raw);
   if (!match) return { data: {}, content: raw };
 
   const parsed: unknown = parse(match[1]);
