@@ -7,7 +7,7 @@ featured: true
 ---
 
 Cascades of photons illuminate the gateways to our brain
-While our neurotic faraday disrupts transmissions from reality
+While our neurotic Faraday disrupts transmissions from reality
 Melodically coasting through space,
 we savor the melancholy taste of acoustic bruises, contouring the sine waves of emotions
 Spelunking in the Fibonacci sequence of life,
