@@ -1,6 +1,6 @@
 ---
 title: "god.com/plex"
-date: "11/02/2024"
+date: "2024-11-02"
 tags: ["anger", "alliteration"]
 excerpt: "I literally litter the pages with a million little alliterations"
 featured: true
