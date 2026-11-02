@@ -1,6 +1,6 @@
 ---
 title: "Losing you"
-date: "11/22/2023"
+date: "2023-11-22"
 tags: ["love", "life", "depression", "loss"]
 excerpt: "she's just a friend, yet she lives rent-free in my head"
 featured: true

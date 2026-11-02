@@ -1,6 +1,6 @@
 ---
 title: "star-crossed lovers"
-date: "04/10/2024"
+date: "2024-04-10"
 tags: ["love", "suicide"]
 excerpt: "angels saved me from death when you and I met"
 featured: true

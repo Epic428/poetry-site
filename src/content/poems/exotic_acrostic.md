@@ -1,6 +1,6 @@
 ---
 title: "Exotic Acrostic"
-date: "03/02/2024"
+date: "2024-03-02"
 tags: ["acrostic", "love"]
 excerpt: "Ashes lie beneath the remains of our past"
 featured: true
