@@ -74,7 +74,7 @@ button {
 }
 
 .nav nav a {
-    font-size: 12px;
+    font-size: 14px;
     color: #a5a4aa
 }
 
@@ -100,6 +100,10 @@ button {
     letter-spacing: 2.2px;
     color: #b794f6;
     font-weight: 700
+}
+
+.poem-detail .kicker {
+    font-size: 12px
 }
 
 .hero h1, .inner-page h1, .poem-detail h1 {
@@ -358,7 +362,7 @@ button {
 
 .poem-date {
     color: #9a98a0;
-    font-size: 12px
+    font-size: 14px
 }
 
 .poem-body {
