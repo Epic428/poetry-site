@@ -1,6 +1,6 @@
 ---
 title: "home is where the heart is, home is wherever she is"
-date: "03/19/2024"
+date: "2024-03-19"
 tags: ["love", "suicide", "drugs", "sex"]
 excerpt: "meet me beneath obsidian skies lit by diamonds"
 featured: true
