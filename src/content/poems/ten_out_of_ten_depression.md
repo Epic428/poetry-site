@@ -1,6 +1,6 @@
 ---
 title: "Ten out of ten depression (It's the thought that counts)"
-date: "04/11/2024"
+date: "2024-04-11"
 tags: ["love", "suicide", "drugs", "sex"]
 excerpt: |
   Suicidal Ideations
