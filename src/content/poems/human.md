@@ -1,7 +1,7 @@
 ---
 title: "Human"
 date: "01/05/2020"
-tags: ["night", "wonder"]
+tags: ["introspection", "life"]
 excerpt: "With deep shifts in perspective, we impart wisdom as art"
 featured: true
 ---
