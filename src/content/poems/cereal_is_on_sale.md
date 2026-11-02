@@ -1,6 +1,6 @@
 ---
 title: "Cereal is on Sale"
-date: "09/23/2018"
+date: "2018-09-23"
 tags: ["capitalism", "political"]
 excerpt: "there’s two sides to a coin like the underside of my loins"
 featured: true
