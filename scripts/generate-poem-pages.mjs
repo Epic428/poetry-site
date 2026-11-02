@@ -17,7 +17,18 @@ function escapeHtml(value) {
 }
 
 function replaceHead(html, tags) {
-    return html.replace("</head>", `${tags}\n</head>`);
+    const cleaned = html
+        .replace(/<meta\b[^>]*>/gi, (tag) => {
+            if (
+                /\b(?:name|property)=["'](?:description|og:[^"']+|twitter:[^"']+)["']/i.test(tag)
+            ) {
+                return "";
+            }
+            return tag;
+        })
+        .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, "");
+
+    return cleaned.replace("</head>", `${tags}\n</head>`);
 }
 
 function getFrontmatter(markdown) {
