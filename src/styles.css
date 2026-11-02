@@ -204,7 +204,8 @@ button {
 .featured-card p, .poem-card p {
     color: #a19ba9;
     font-size: 13px;
-    line-height: 1.9
+    line-height: 1.9;
+    white-space: pre-line;
 }
 
 .featured-card blockquote {
