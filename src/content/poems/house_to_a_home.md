@@ -1,6 +1,6 @@
 ---
 title: "house to a home"
-date: "05/21/2023"
+date: "2023-05-21"
 tags: ["love", "depression"]
 excerpt: "to mask the pain, she puts on her face"
 featured: true

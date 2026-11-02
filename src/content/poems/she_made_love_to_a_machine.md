@@ -1,6 +1,6 @@
 ---
 title: "she made love to a machine"
-date: "05/20/2023"
+date: "2023-05-20"
 tags: ["love", "depression"]
 excerpt: "my abuser peddles venom as dreams"
 ---

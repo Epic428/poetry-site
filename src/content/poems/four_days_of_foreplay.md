@@ -1,6 +1,6 @@
 ---
 title: "four days of foreplay"
-date: "04/09/2024"
+date: "2024-04-09"
 tags: ["love", "sex"]
 excerpt: "help us, we need saving"
 featured: true
