@@ -142,6 +142,7 @@ form {
 .field textarea {
     display: block;
     width: 100%;
+    min-width: 0;
     background: #0d0d14;
     border: 1px solid #393141;
     border-radius: 8px;
@@ -149,6 +150,12 @@ form {
     color: #e9e5ef;
     outline: none;
     transition: border-color .2s;
+}
+
+/* Keep the native iOS date control within its grid column. */
+.field input[type="date"] {
+    min-width: 0;
+    max-width: 100%;
 }
 
 .field input:focus,
@@ -163,7 +170,7 @@ form {
 
 .field-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 20px;
 }
 
@@ -283,7 +290,7 @@ form {
     }
 
     .field-row {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 0;
     }
 
