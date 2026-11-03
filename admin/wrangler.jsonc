@@ -1,0 +1,23 @@
+
+{
+    "$schema": "../node_modules/wrangler/config-schema.json",
+    "name": "nocturne-admin",
+    "main": "./worker/index.ts",
+    "compatibility_date": "2026-11-02",
+    "vars": {
+        "GITHUB_OWNER": "Epic428",
+        "GITHUB_REPO": "poetry-site",
+        "GITHUB_BRANCH": "main",
+        "ACCESS_TEAM_DOMAIN": "epicoreo.cloudflareaccess.com",
+        "ACCESS_AUD": "cee6f6184e7aaf152bc6a8001470a45c6befdd63f055463071a794f4e82a53bb",
+        "ADMIN_EMAIL": "james@epicoreo.net"
+    },
+    "assets": {
+        "directory": "../dist-admin",
+        "binding": "ASSETS",
+        "run_worker_first": ["/api/*"],
+        "not_found_handling": "single-page-application"
+    },
+    "workers_dev": false,
+    "preview_urls": false
+}

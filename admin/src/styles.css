@@ -1,0 +1,347 @@
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;1,400&display=swap");
+
+:root {
+    font-family: "DM Sans", sans-serif;
+    color: #e9e5ef;
+    background: #0b0c11;
+    font-synthesis: none;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+}
+
+button, input, textarea {
+    font: inherit;
+}
+
+.admin-shell {
+    min-height: 100vh;
+    background:
+            radial-gradient(ellipse at 50% 0%, #241932 0%, transparent 48%),
+            #0b0c11;
+}
+
+.admin-header {
+    height: 82px;
+    max-width: 1200px;
+    padding: 0 32px;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ffffff12;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: "Playfair Display", serif;
+    font-size: 27px;
+}
+
+.brand-symbol {
+    color: #b794f6;
+}
+
+.admin-label, .eyebrow, .editor-toolbar {
+    color: #b794f6;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.admin-main {
+    max-width: 860px;
+    padding: 70px 24px 100px;
+    margin: auto;
+}
+
+.page-heading {
+    margin-bottom: 42px;
+}
+
+.page-heading h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(42px, 6vw, 64px);
+    font-weight: 400;
+    margin: 16px 0;
+}
+
+.page-heading h1 em {
+    color: #b794f6;
+}
+
+.page-heading p {
+    color: #a19ba9;
+    line-height: 1.8;
+}
+
+.editor-card {
+    background: #14141c;
+    border: 1px solid #302839;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.editor-toolbar {
+    padding: 20px 28px;
+    border-bottom: 1px solid #302839;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.view-switch {
+    display: flex;
+    gap: 5px;
+    background: #0b0c11;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.view-switch button {
+    border: 0;
+    background: transparent;
+    color: #a19ba9;
+    cursor: pointer;
+    padding: 8px 13px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.view-switch button.active {
+    background: #332443;
+    color: #e9d8ff;
+}
+
+form {
+    padding: 32px;
+}
+
+.field {
+    margin-bottom: 26px;
+    min-width: 0;
+}
+
+.field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.field input,
+.field textarea {
+    display: block;
+    width: 100%;
+    background: #0d0d14;
+    border: 1px solid #393141;
+    border-radius: 8px;
+    padding: 14px 16px;
+    color: #e9e5ef;
+    outline: none;
+    transition: border-color .2s;
+}
+
+.field input:focus,
+.field textarea:focus {
+    border-color: #b794f6;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+    color: #77717e;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.filename {
+    padding: 12px 16px;
+    background: #1c1925;
+    border: 1px solid #302839;
+    border-radius: 8px;
+    color: #b794f6;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.field-hint, .footer-note {
+    display: block;
+    color: #908a99;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.poem-input {
+    min-height: 350px;
+    resize: vertical;
+    line-height: 1.9;
+}
+
+.excerpt-input {
+    resize: vertical;
+    line-height: 1.7;
+}
+
+.checkbox-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 4px 0 30px;
+    cursor: pointer;
+}
+
+.checkbox-field input {
+    accent-color: #b794f6;
+    margin-top: 4px;
+}
+
+.checkbox-field strong,
+.checkbox-field small {
+    display: block;
+}
+
+.checkbox-field strong {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.checkbox-field small {
+    color: #908a99;
+    line-height: 1.6;
+}
+
+.markdown-preview {
+    padding: 32px;
+}
+
+.markdown-preview pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.8;
+    color: #d2c5df;
+    font-size: 13px;
+}
+
+.editor-footer {
+    padding: 22px 32px;
+    border-top: 1px solid #302839;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.primary-button {
+    background: #b794f6;
+    color: #17101f;
+    border: 0;
+    border-radius: 8px;
+    padding: 13px 22px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.primary-button:hover {
+    background: #c6aaff;
+}
+
+.primary-button:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .admin-header {
+        padding: 0 20px;
+    }
+
+    .admin-label {
+        font-size: 9px;
+    }
+
+    .admin-main {
+        padding: 44px 16px 70px;
+    }
+
+    form, .markdown-preview {
+        padding: 20px;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .editor-toolbar, .editor-footer {
+        padding: 18px 20px;
+    }
+
+    .editor-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .primary-button {
+        width: 100%;
+    }
+}
+
+
+.footer-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.secondary-button {
+    background: transparent;
+    border: 1px solid #493b57;
+    border-radius: 8px;
+    padding: 13px 20px;
+    color: #d9c5ec;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.secondary-button:hover {
+    border-color: #b794f6;
+}
+
+.secondary-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #f5a6a6;
+    font-size: 13px;
+}
+
+.success-message {
+    color: #a7dbba;
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .footer-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
