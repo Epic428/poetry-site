@@ -126,6 +126,14 @@ form {
     padding: 32px;
 }
 
+/* Prevent native form controls from expanding the editor on iOS. */
+.editor-card form,
+.field-row,
+.field-row > .field {
+    min-width: 0;
+    max-width: 100%;
+}
+
 .field {
     margin-bottom: 26px;
     min-width: 0;
@@ -152,10 +160,15 @@ form {
     transition: border-color .2s;
 }
 
-/* Keep the native iOS date control within its grid column. */
+/* Constrain the native iOS date control to the available field width. */
 .field input[type="date"] {
+    display: block;
+    width: 100%;
     min-width: 0;
     max-width: 100%;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
 .field input:focus,
@@ -290,7 +303,9 @@ form {
     }
 
     .field-row {
+        display: grid;
         grid-template-columns: minmax(0, 1fr);
+        width: 100%;
         gap: 0;
     }
 
