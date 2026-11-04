@@ -19,6 +19,17 @@ function todayLocal(): string {
     return `${year}-${month}-${day}`;
 }
 
+function emptyDraft(): PoemDraft {
+    return {
+        title: "",
+        date: todayLocal(),
+        tags: "",
+        excerpt: "",
+        featured: false,
+        body: "",
+    };
+}
+
 function makeSlug(title: string): string {
     return title
         .normalize("NFKD")
@@ -46,14 +57,7 @@ function generateMarkdown(draft: PoemDraft): string {
 }
 
 export default function App() {
-    const [draft, setDraft] = useState<PoemDraft>({
-        title: "",
-        date: todayLocal(),
-        tags: "",
-        excerpt: "",
-        featured: false,
-        body: "",
-    });
+    const [draft, setDraft] = useState<PoemDraft>(emptyDraft);
 
     const [preview, setPreview] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -77,6 +81,7 @@ export default function App() {
             [field]: value,
         }));
         setCopied(false);
+        setSubmitSuccess("");
     }
 
     async function copyMarkdown() {
@@ -143,6 +148,9 @@ export default function App() {
             setSubmitSuccess(
                 `Successfully committed ${result.path} to GitHub.`
             );
+            setDraft(emptyDraft());
+            setPreview(false);
+            setCopied(false);
         } catch (error) {
             setSubmitError(
                 error instanceof Error
@@ -334,7 +342,7 @@ export default function App() {
                                 type="button"
                                 className="primary-button"
                                 onClick={submitPoem}
-                                disabled={!valid || submitting || !!submitSuccess}
+                                disabled={!valid || submitting}
                             >
                                 {submitting ? "Publishing..." : "Publish Poem"}
                             </button>
