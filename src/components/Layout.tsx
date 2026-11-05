@@ -1,5 +1,5 @@
 import {Link, NavLink} from "react-router-dom";
-import {Moon} from "lucide-react";
+import {Moon, Rss} from "lucide-react";
 import type {ReactNode} from "react";
 
 export default function Layout({children}: Readonly<{ children: ReactNode }>) {
@@ -14,7 +14,7 @@ export default function Layout({children}: Readonly<{ children: ReactNode }>) {
         {children}
         <footer className="footer">
             <div className="container footer-inner"><Link className="brand" to="/">Nocturne<span
-                className="period">.</span></Link><p>Words for quieter moments.</p></div>
+                className="period">.</span></Link><p>Words for quieter moments.</p><a href="/rss.xml" aria-label="Subscribe to Nocturne RSS feed" title="Subscribe via RSS"><Rss size={18}/></a></div>
         </footer>
     </div>
 }
