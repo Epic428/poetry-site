@@ -1,4 +1,4 @@
-interface Env {
+// Minimal D1 interfaces keep this standalone Worker independent of the React TS project.\ninterface D1Database {\n  prepare(query: string): D1PreparedStatement;\n}\ninterface D1PreparedStatement {\n  bind(...values: unknown[]): D1PreparedStatement;\n  first<T>(): Promise<T | null>;\n  run(): Promise<{ meta: { changes: number } }>;\n}\n\ninterface Env {
   DB: D1Database;
   RESEND_API_KEY: string;
   RESEND_FROM_EMAIL: string;
