@@ -13,6 +13,8 @@ interface Env {
   RESEND_API_KEY: string;
   RESEND_FROM_EMAIL: string;
   PUBLIC_SITE_URL: string;
+  TURNSTILE_SECRET_KEY: string;
+  UNSUBSCRIBE_SIGNING_KEY: string;
 }
 
 const encoder = new TextEncoder();
@@ -67,6 +69,63 @@ async function sendConfirmation(email: string, token: string, env: Env, request:
   if (!response.ok) throw new Error(`Resend returned ${response.status}`);
 }
 
+
+function base64url(bytes: Uint8Array): string {
+  return btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+}
+async function unsubscribeSignature(id: string, confirmedAt: number, env: Env): Promise<string> {
+  const key = await crypto.subtle.importKey("raw", encoder.encode(env.UNSUBSCRIBE_SIGNING_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(`${id}:${confirmedAt}`));
+  return base64url(new Uint8Array(signature));
+}
+async function verifyUnsubscribeToken(token: string, env: Env): Promise<string | null> {
+  const match = /^([0-9a-f-]{36})\.([A-Za-z0-9_-]{43})$/.exec(token);
+  if (!match) return null;
+  const subscriber = await env.DB.prepare("SELECT confirmed_at, status FROM subscribers WHERE id = ?").bind(match[1]).first<{confirmed_at: number | null; status: string}>();
+  if (!subscriber?.confirmed_at || subscriber.status !== "confirmed") return null;
+  const expected = await unsubscribeSignature(match[1], subscriber.confirmed_at, env);
+  const a = encoder.encode(match[2]);
+  const b = encoder.encode(expected);
+  if (a.length !== b.length) return null;
+  let difference = 0;
+  for (let i = 0; i < a.length; i++) difference |= a[i] ^ b[i];
+  return difference === 0 ? match[1] : null;
+}
+// For future poem delivery: `id + "." + await unsubscribeSignature(id, confirmed_at, env)`.
+// Only distribute unsubscribe links to the corresponding subscriber.
+async function verifyTurnstile(token: string, request: Request, env: Env): Promise<boolean> {
+  if (!token || token.length > 2048) return false;
+  const form = new FormData();
+  form.set("secret", env.TURNSTILE_SECRET_KEY);
+  form.set("response", token);
+  const ip = request.headers.get("CF-Connecting-IP");
+  if (ip) form.set("remoteip", ip);
+  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
+  if (!response.ok) return false;
+  const result = await response.json() as { success?: boolean; hostname?: string };
+  return result.success === true && result.hostname === new URL(env.PUBLIC_SITE_URL).hostname;
+}
+function escapeHtml(value: string): string {
+  return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+}
+async function unsubscribePage(request: Request, env: Env): Promise<Response> {
+  const token = new URL(request.url).searchParams.get("token") ?? "";
+  const id = await verifyUnsubscribeToken(token, env);
+  if (!id) return json({ error: "Invalid unsubscribe link." }, 400);
+  const html = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>Unsubscribe | Nocturne</title><style>body{background:#0b0c11;color:#eae8f0;font:16px/1.7 system-ui;min-height:90vh;display:grid;place-items:center}main{max-width:440px;padding:2rem;text-align:center}h1{font:2.5rem Georgia,serif;color:#dec9ff}button{padding:1rem 2rem;background:#b794f6;border:0;color:#14101c;cursor:pointer}a{color:#dec9ff}</style></head><body><main><h1>Leave the mailing list?</h1><p>You can unsubscribe from Nocturne's new-poem emails at any time.</p><form method="POST" action="/api/unsubscribe"><input type="hidden" name="token" value="${escapeHtml(token)}"><button type="submit">Unsubscribe</button></form><p><a href="${escapeHtml(env.PUBLIC_SITE_URL)}">Return to Nocturne</a></p></main></body></html>`;
+  return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer", "X-Content-Type-Options": "nosniff" } });
+}
+async function unsubscribe(request: Request, env: Env): Promise<Response> {
+  if (!/^application\/x-www-form-urlencoded(?:\s*;|$)/i.test(request.headers.get("Content-Type") ?? "")) return json({ error: "Expected form." }, 415);
+  const body = await request.text();
+  if (body.length > 4096) return json({ error: "Request too large." }, 413);
+  const token = new URLSearchParams(body).get("token") ?? "";
+  const id = await verifyUnsubscribeToken(token, env);
+  if (!id) return json({ error: "Invalid unsubscribe link." }, 400);
+  await env.DB.prepare("UPDATE subscribers SET status = 'unsubscribed', unsubscribed_at = ?, token_hash = NULL, token_expires_at = NULL WHERE id = ? AND status != 'unsubscribed'").bind(Math.floor(Date.now() / 1000), id).run();
+  return new Response('<!doctype html><html lang="en"><meta charset="utf-8"><meta name="referrer" content="no-referrer"><title>Unsubscribed | Nocturne</title><body style="background:#0b0c11;color:#eae8f0;text-align:center;padding:5rem;font:18px system-ui"><h1>You have been unsubscribed.</h1><p>You will no longer receive Nocturne poem notifications.</p><a style="color:#dec9ff" href="https://nocturnepoetry.com/">Return to Nocturne</a></body></html>', { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
+}
+
 async function subscribe(request: Request, env: Env): Promise<Response> {
   const headers = cors(request, env);
   if (request.headers.get("Origin") !== env.PUBLIC_SITE_URL) {
@@ -86,6 +145,10 @@ async function subscribe(request: Request, env: Env): Promise<Response> {
   } catch {
     return json({ error: "Invalid JSON." }, 400, headers);
   }
+  const turnstileToken = typeof input === "object" && input !== null && "turnstileToken" in input && typeof input.turnstileToken === "string" ? input.turnstileToken : "";
+  if (!(await verifyTurnstile(turnstileToken, request, env))) {
+    return json({ error: "Security check failed. Please try again." }, 403, headers);
+  }
   const email = typeof input === "object" && input !== null && "email" in input
     && typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
   if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -95,21 +158,23 @@ async function subscribe(request: Request, env: Env): Promise<Response> {
   const generic = json({ message: "If this address is eligible, a confirmation email will arrive shortly." }, 202, headers);
   const existing = await env.DB.prepare("SELECT id, status, created_at FROM subscribers WHERE email = ?")
     .bind(email).first<{ id: string; status: string; created_at: number }>();
-  if (existing?.status === "confirmed" || existing?.status === "unsubscribed") return generic;
+  if (existing?.status === "confirmed") return generic;
 
   // Avoid repeated confirmation sends for the same pending address.
   const now = Math.floor(Date.now() / 1000);
-  if (existing && existing.created_at > now - 3600) return generic;
+  if (existing && existing.status === "pending" && existing.created_at > now - 3600) return generic;
 
   const id = existing?.id ?? crypto.randomUUID();
   const token = randomToken();
   const tokenHash = await hashToken(token);
   if (existing) {
-    await env.DB.prepare("UPDATE subscribers SET token_hash = ?, token_expires_at = ?, created_at = ? WHERE id = ? AND status = 'pending'")
+    const update = await env.DB.prepare("UPDATE subscribers SET status = 'pending', token_hash = ?, token_expires_at = ?, created_at = ?, confirmed_at = NULL, unsubscribed_at = NULL WHERE id = ? AND status IN ('pending', 'unsubscribed')")
       .bind(tokenHash, now + DAY, now, id).run();
+    if (!update.meta.changes) return generic;
   } else {
-    await env.DB.prepare("INSERT OR IGNORE INTO subscribers (id, email, status, token_hash, token_expires_at, created_at) VALUES (?, ?, 'pending', ?, ?, ?)")
+    const insert = await env.DB.prepare("INSERT OR IGNORE INTO subscribers (id, email, status, token_hash, token_expires_at, created_at) VALUES (?, ?, 'pending', ?, ?, ?)")
       .bind(id, email, tokenHash, now + DAY, now).run();
+    if (!insert.meta.changes) return generic;
   }
   try {
     await sendConfirmation(email, token, env, request);
@@ -150,7 +215,7 @@ export default {
       });
     }
     if (pathname === "/api/subscribe" && request.method === "POST") {
-      if (!env.DB || !env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL || !env.PUBLIC_SITE_URL) {
+      if (!env.DB || !env.RESEND_API_KEY || !env.RESEND_FROM_EMAIL || !env.PUBLIC_SITE_URL || !env.TURNSTILE_SECRET_KEY) {
         return json({ error: "Subscription service unavailable." }, 503);
       }
       try { return await subscribe(request, env); }
@@ -166,6 +231,11 @@ export default {
         console.error("Subscription confirmation failed", error);
         return json({ error: "Subscription service unavailable." }, 503);
       }
+    }
+    if (pathname === "/api/unsubscribe" && (request.method === "GET" || request.method === "POST")) {
+      if (!env.DB || !env.UNSUBSCRIBE_SIGNING_KEY || !env.PUBLIC_SITE_URL) return json({ error: "Subscription service unavailable." }, 503);
+      try { return request.method === "GET" ? await unsubscribePage(request, env) : await unsubscribe(request, env); }
+      catch (error) { console.error("Unsubscribe failed", error); return json({ error: "Subscription service unavailable." }, 503); }
     }
     return json({ error: "Not found." }, 404);
   },

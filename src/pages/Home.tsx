@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import {ArrowRight} from "lucide-react";
 import {poems} from "../lib/poems";
 import PoemCard from "../components/PoemCard";
+import SubscriptionForm from "../components/SubscriptionForm";
 
 export default function Home() {
     const [featured] = useState(() => {
@@ -34,6 +35,7 @@ export default function Home() {
                 <div className="poem-grid">{poems.slice(0, 3).map(p => <PoemCard key={p.slug} poem={p}/>)}</div>
             </div>
         </section>
+        <SubscriptionForm/>
         <section className="closing"><h2>Some things are better<br/><em>said in a poem.</em></h2><Link
             className="btn btn-outline" to="/poems">Read more poems <ArrowRight size={16}/></Link></section>
     </main>
