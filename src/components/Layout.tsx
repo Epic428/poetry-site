@@ -15,6 +15,7 @@ export default function Layout({children}: Readonly<{ children: ReactNode }>) {
         <footer className="footer">
             <div className="container footer-inner"><Link className="brand" to="/">Nocturne<span
                 className="period">.</span></Link><p>Words for quieter moments.</p><a href="/rss.xml" aria-label="Subscribe to Nocturne RSS feed" title="Subscribe via RSS"><Rss size={18}/></a></div>
+            <div className="container footer-copyright"><p>© {new Date().getFullYear()} Nocturne. All rights reserved.</p></div>
         </footer>
     </div>
 }
