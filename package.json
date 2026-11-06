@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/generate-poem-pages.mjs && node scripts/generate-rss.mjs",
+    "build": "tsc -b && vite build && node scripts/generate-poem-pages.mjs && node scripts/generate-rss.mjs && node scripts/generate-poems-manifest.mjs",
     "preview": "vite preview",
     "dev:admin": "vite --config admin/vite.config.ts",
     "build:admin": "vite build --config admin/vite.config.ts",
