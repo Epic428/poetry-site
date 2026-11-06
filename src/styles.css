@@ -497,3 +497,12 @@ button {
 .subscribe-notice { color: #e4d2ff !important; }
 .subscribe-section small { color: #9c94a5; font-size: 11px; }
 @media (max-width: 550px) { .subscribe-section { padding: 65px 0; } .subscribe-form input, .subscribe-form button { flex-basis: 100%; width: 100%; } }
+
+/* Copyright and poem sharing */
+.footer-copyright { margin-top: 25px; padding-top: 20px; border-top: 1px solid #282430; }
+.footer-copyright p { margin: 0; color: #888090; font-size: 11px; }
+.poem-sharing { margin: 30px 0 36px; }
+.poem-sharing h2 { color: #b794f6; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; margin: 0 0 18px; }
+.poem-share-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.poem-share-actions button, .poem-share-actions a { display: inline-flex; align-items: center; gap: 9px; padding: 12px 16px; background: transparent; border: 1px solid #554368; color: #e8e0ef; font-size: 12px; }
+.poem-share-actions button:hover, .poem-share-actions a:hover { border-color: #b794f6; color: #dec9ff; }
