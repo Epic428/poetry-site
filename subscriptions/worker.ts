@@ -73,15 +73,17 @@ async function sendConfirmation(email: string, token: string, env: Env, request:
 function base64url(bytes: Uint8Array): string {
   return btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
 }
-async function unsubscribeSignature(id: string, env: Env): Promise<string> {
+async function unsubscribeSignature(id: string, confirmedAt: number, env: Env): Promise<string> {
   const key = await crypto.subtle.importKey("raw", encoder.encode(env.UNSUBSCRIBE_SIGNING_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(id));
+  const signature = await crypto.subtle.sign("HMAC", key, encoder.encode(`${id}:${confirmedAt}`));
   return base64url(new Uint8Array(signature));
 }
 async function verifyUnsubscribeToken(token: string, env: Env): Promise<string | null> {
   const match = /^([0-9a-f-]{36})\.([A-Za-z0-9_-]{43})$/.exec(token);
   if (!match) return null;
-  const expected = await unsubscribeSignature(match[1], env);
+  const subscriber = await env.DB.prepare("SELECT confirmed_at, status FROM subscribers WHERE id = ?").bind(match[1]).first<{confirmed_at: number | null; status: string}>();
+  if (!subscriber?.confirmed_at || subscriber.status !== "confirmed") return null;
+  const expected = await unsubscribeSignature(match[1], subscriber.confirmed_at, env);
   const a = encoder.encode(match[2]);
   const b = encoder.encode(expected);
   if (a.length !== b.length) return null;
@@ -89,7 +91,7 @@ async function verifyUnsubscribeToken(token: string, env: Env): Promise<string |
   for (let i = 0; i < a.length; i++) difference |= a[i] ^ b[i];
   return difference === 0 ? match[1] : null;
 }
-// For the future poem delivery worker: `id + "." + await unsubscribeSignature(id, env)`.
+// For future poem delivery: `id + "." + await unsubscribeSignature(id, confirmed_at, env)`.
 // Only distribute unsubscribe links to the corresponding subscriber.
 async function verifyTurnstile(token: string, request: Request, env: Env): Promise<boolean> {
   if (!token || token.length > 2048) return false;
@@ -156,21 +158,23 @@ async function subscribe(request: Request, env: Env): Promise<Response> {
   const generic = json({ message: "If this address is eligible, a confirmation email will arrive shortly." }, 202, headers);
   const existing = await env.DB.prepare("SELECT id, status, created_at FROM subscribers WHERE email = ?")
     .bind(email).first<{ id: string; status: string; created_at: number }>();
-  if (existing?.status === "confirmed" || existing?.status === "unsubscribed") return generic;
+  if (existing?.status === "confirmed") return generic;
 
   // Avoid repeated confirmation sends for the same pending address.
   const now = Math.floor(Date.now() / 1000);
-  if (existing && existing.created_at > now - 3600) return generic;
+  if (existing && existing.status === "pending" && existing.created_at > now - 3600) return generic;
 
   const id = existing?.id ?? crypto.randomUUID();
   const token = randomToken();
   const tokenHash = await hashToken(token);
   if (existing) {
-    await env.DB.prepare("UPDATE subscribers SET token_hash = ?, token_expires_at = ?, created_at = ? WHERE id = ? AND status = 'pending'")
+    const update = await env.DB.prepare("UPDATE subscribers SET status = 'pending', token_hash = ?, token_expires_at = ?, created_at = ?, confirmed_at = NULL, unsubscribed_at = NULL WHERE id = ? AND status IN ('pending', 'unsubscribed')")
       .bind(tokenHash, now + DAY, now, id).run();
+    if (!update.meta.changes) return generic;
   } else {
-    await env.DB.prepare("INSERT OR IGNORE INTO subscribers (id, email, status, token_hash, token_expires_at, created_at) VALUES (?, ?, 'pending', ?, ?, ?)")
+    const insert = await env.DB.prepare("INSERT OR IGNORE INTO subscribers (id, email, status, token_hash, token_expires_at, created_at) VALUES (?, ?, 'pending', ?, ?, ?)")
       .bind(id, email, tokenHash, now + DAY, now).run();
+    if (!insert.meta.changes) return generic;
   }
   try {
     await sendConfirmation(email, token, env, request);
