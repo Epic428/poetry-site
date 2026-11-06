@@ -483,3 +483,17 @@ button {
         transition: none !important
     }
 }
+
+/* Email subscriptions */
+.subscribe-section { padding: 88px 0; background: radial-gradient(ellipse at 50% 10%, #241a34, #101017 72%); text-align: center; border-top: 1px solid #30283e; }
+.subscribe-inner { max-width: 760px; }
+.subscribe-section h2 { font: 400 clamp(32px, 4vw, 52px)/1.35 'Playfair Display', serif; margin: 22px 0 14px; }
+.subscribe-section h2 em { color: #dec9ff; }
+.subscribe-section p { color: #b4aebd; font-size: 14px; line-height: 1.8; }
+.subscribe-form { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin: 30px auto 16px; max-width: 590px; }
+.subscribe-form input { flex: 1 1 230px; min-width: 0; padding: 16px; background: #14121b; border: 1px solid #554368; color: #f4effa; border-radius: 0; }
+.subscribe-form button:disabled { opacity: .55; cursor: not-allowed; }
+.subscribe-turnstile { flex-basis: 100%; display: flex; justify-content: center; min-height: 65px; }
+.subscribe-notice { color: #e4d2ff !important; }
+.subscribe-section small { color: #9c94a5; font-size: 11px; }
+@media (max-width: 550px) { .subscribe-section { padding: 65px 0; } .subscribe-form input, .subscribe-form button { flex-basis: 100%; width: 100%; } }
