@@ -81,9 +81,15 @@ export async function processPoemNotifications(env: NotificationEnv): Promise<vo
   for (const poem of poems) {
     const existing = await env.DB.prepare("SELECT slug FROM poem_announcements WHERE slug = ?").bind(poem.slug).first();
     if (existing) continue;
-    const url = new URL("/poems/" + encodeURIComponent(poem.slug), env.PUBLIC_SITE_URL);
-    const check = await fetch(url.toString(), { redirect:"manual", headers: { "Cache-Control":"no-cache" } });
-    if (!check.ok || !(await check.text()).includes("og:title")) throw new Error("Poem not publicly ready: " + poem.slug);
+    const url = new URL("/poems/" + encodeURIComponent(poem.slug) + "/", env.PUBLIC_SITE_URL);
+    const check = await fetch(url.toString(), { redirect: "follow", headers: { "Cache-Control": "no-cache" } });
+    const finalUrl = new URL(check.url);
+    if (
+      !check.ok ||
+      finalUrl.origin !== url.origin ||
+      finalUrl.pathname !== url.pathname ||
+      !(await check.text()).includes("og:title")
+    ) throw new Error("Poem not publicly ready: " + poem.slug);
     await env.DB.prepare("INSERT OR IGNORE INTO poem_announcements (slug, title, excerpt, first_seen_at, status) VALUES (?, ?, ?, ?, 'active')").bind(poem.slug,poem.title,poem.excerpt,nowSeconds()).run();
   }
   // Fixed work budget per scheduled invocation, with leases for overlapping invocations.
