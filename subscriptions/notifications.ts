@@ -31,7 +31,7 @@ async function signedUnsubscribe(id: string, confirmedAt: number, env: Notificat
 async function fetchManifest(env: NotificationEnv): Promise<Poem[]> {
   const url = new URL("/poems-manifest.json", env.PUBLIC_SITE_URL);
   url.searchParams.set("t", String(Date.now()));
-  const response = await fetch(url.toString(), { headers: { Accept: "application/json", "Cache-Control": "no-cache" }, redirect: "error" });
+  const response = await fetch(url.toString(), { headers: { Accept: "application/json", "Cache-Control": "no-cache" }, redirect: "manual" });
   if (!response.ok) throw new Error("Public manifest HTTP " + response.status);
   const raw = await response.text();
   if (raw.length > 250000) throw new Error("Manifest too large");
@@ -82,7 +82,7 @@ export async function processPoemNotifications(env: NotificationEnv): Promise<vo
     const existing = await env.DB.prepare("SELECT slug FROM poem_announcements WHERE slug = ?").bind(poem.slug).first();
     if (existing) continue;
     const url = new URL("/poems/" + encodeURIComponent(poem.slug), env.PUBLIC_SITE_URL);
-    const check = await fetch(url.toString(), { redirect:"error", headers: { "Cache-Control":"no-cache" } });
+    const check = await fetch(url.toString(), { redirect:"manual", headers: { "Cache-Control":"no-cache" } });
     if (!check.ok || !(await check.text()).includes("og:title")) throw new Error("Poem not publicly ready: " + poem.slug);
     await env.DB.prepare("INSERT OR IGNORE INTO poem_announcements (slug, title, excerpt, first_seen_at, status) VALUES (?, ?, ?, ?, 'active')").bind(poem.slug,poem.title,poem.excerpt,nowSeconds()).run();
   }
