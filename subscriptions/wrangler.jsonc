@@ -12,6 +12,7 @@
       "database_id": "550f82a0-1a0a-488f-9e77-998be6d6a62e"
     }
   ],
+  "triggers": { "crons": ["*/15 * * * *"] },
   "vars": {
     "PUBLIC_SITE_URL": "https://nocturnepoetry.com",
     "RESEND_FROM_EMAIL": "Nocturne <poems@nocturnepoetry.com>"
