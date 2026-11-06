@@ -42,3 +42,15 @@ The unsubscribe signing key must remain secret. Changing it invalidates existing
 - Restrict request origins and use Cloudflare WAF / Turnstile rate limiting before making signup public.
 - Do not enable the Worker on public preview domains. Never use production subscriber data in previews.
 - Cloudflare D1 backups and data retention policies should be configured before production use.
+
+## Test unsubscribe without sending a poem notification
+
+After deploying the Worker, obtain your confirmed test subscriber's ID and confirmation timestamp:
+
+```sh
+npx wrangler d1 execute nocturne-subscriptions --remote --config subscriptions/wrangler.jsonc --command "SELECT id, email, status, confirmed_at FROM subscribers;"
+```
+
+Run `node subscriptions/test-unsubscribe-link.mjs SUBSCRIBER_ID CONFIRMED_AT`. The helper prompts locally for the **same** `UNSUBSCRIBE_SIGNING_KEY` stored in the Worker; do not paste it into shell history or commit it. Open the generated URL and click Unsubscribe. Verify `status = 'unsubscribed'` in D1. Then submit the same email through the public signup form and confirm the **new** confirmation email. The record should return to `confirmed`. Old unsubscribe links become invalid when the confirmation timestamp changes.
+
+This helper is intentionally local-only: there is no publicly accessible link-generation API, and no signing key is sent to the browser. Keep generated links private.
