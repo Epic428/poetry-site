@@ -87,11 +87,11 @@ export async function processPoemNotifications(env: NotificationEnv): Promise<vo
     await env.DB.prepare("INSERT OR IGNORE INTO poem_announcements (slug, title, excerpt, first_seen_at, status) VALUES (?, ?, ?, ?, 'active')").bind(poem.slug,poem.title,poem.excerpt,nowSeconds()).run();
   }
   // Fixed work budget per scheduled invocation, with leases for overlapping invocations.
-  const active = (await env.DB.prepare("SELECT slug, title, excerpt FROM poem_announcements WHERE status = 'active' ORDER BY first_seen_at ASC LIMIT 10").all<Pick<Poem,"slug"|"title"|"excerpt">>()).results;
+  const active = (await env.DB.prepare("SELECT slug, title, excerpt, first_seen_at FROM poem_announcements WHERE status = 'active' ORDER BY first_seen_at ASC LIMIT 10").all<Pick<Poem,"slug"|"title"|"excerpt"> & { first_seen_at: number }>()).results;
   let budget = 20;
   for (const poem of active) {
     if (!budget) break;
-    const subscribers = (await env.DB.prepare("SELECT id, email, confirmed_at FROM subscribers WHERE status = 'confirmed' AND confirmed_at IS NOT NULL AND NOT EXISTS (SELECT 1 FROM notification_deliveries d WHERE d.poem_slug = ? AND d.subscriber_id = subscribers.id AND (d.status = 'sent' OR (d.status = 'pending' AND d.updated_at > ?))) ORDER BY id LIMIT ?").bind(poem.slug, nowSeconds()-600, budget).all<Subscriber>()).results;
+    const subscribers = (await env.DB.prepare("SELECT id, email, confirmed_at FROM subscribers WHERE status = 'confirmed' AND confirmed_at IS NOT NULL AND confirmed_at <= ? AND NOT EXISTS (SELECT 1 FROM notification_deliveries d WHERE d.poem_slug = ? AND d.subscriber_id = subscribers.id AND (d.status = 'sent' OR (d.status = 'pending' AND d.updated_at > ?))) ORDER BY id LIMIT ?").bind(poem.first_seen_at, poem.slug, nowSeconds()-600, budget).all<Subscriber>()).results;
     for (const subscriber of subscribers) {
       if (!budget) break;
       // Atomically acquire a 10-minute lease. A stale pending or failed delivery may retry.
@@ -102,7 +102,7 @@ export async function processPoemNotifications(env: NotificationEnv): Promise<vo
       try {
         // Recheck opt-in immediately before sending.
         const current = await env.DB.prepare("SELECT id, email, confirmed_at FROM subscribers WHERE id = ? AND status = 'confirmed'").bind(subscriber.id).first<Subscriber>();
-        if (!current?.confirmed_at) {
+        if (!current?.confirmed_at || current.confirmed_at > poem.first_seen_at) {
           await env.DB.prepare("UPDATE notification_deliveries SET status = 'failed', updated_at = ? WHERE poem_slug = ? AND subscriber_id = ?").bind(nowSeconds(),poem.slug,subscriber.id).run();
           continue;
         }
