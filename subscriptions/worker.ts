@@ -1,3 +1,4 @@
+import { processPoemNotifications } from "./notifications";
 // Minimal D1 interfaces keep this standalone Worker independent of the React TS project.
 interface D1Database {
   prepare(query: string): D1PreparedStatement;
@@ -7,6 +8,7 @@ interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
   first<T>(): Promise<T | null>;
   run(): Promise<{ meta: { changes: number } }>;
+  all<T>(): Promise<{ results: T[] }>;
 }
 
 interface Env {
@@ -201,6 +203,9 @@ async function confirm(request: Request, env: Env): Promise<Response> {
 }
 
 export default {
+  async scheduled(_event: ScheduledEvent, env: Env): Promise<void> {
+    await processPoemNotifications(env);
+  },
   async fetch(request: Request, env: Env): Promise<Response> {
     const pathname = new URL(request.url).pathname;
     if (request.method === "OPTIONS" && pathname === "/api/subscribe") {
