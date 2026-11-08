@@ -1,6 +1,6 @@
 ---
 title: Mumble Rap
-date: 2026-11-08
+date: 2018-09-03
 tags:
   - life
   - rap

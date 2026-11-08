@@ -1,6 +1,6 @@
 ---
 title: Whose Life Matters?
-date: 2026-11-08
+date: 2018-06-28
 tags:
   - love
   - life

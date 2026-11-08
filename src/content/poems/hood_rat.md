@@ -1,6 +1,6 @@
 ---
 title: Hood-rat
-date: 2026-11-08
+date: 2017-11-08
 tags:
   - life
   - rap

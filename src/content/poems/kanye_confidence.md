@@ -1,6 +1,6 @@
 ---
 title: Kanye Confidence
-date: 2026-11-07
+date: 2018-05-19
 tags:
   - love
   - life
